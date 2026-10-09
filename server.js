@@ -1,5 +1,7 @@
 "use strict";
 
+require("@aikidosec/firewall"); // <-- Include this before any other code or imports
+
 const express = require("express");
 const favicon = require("serve-favicon");
 const bodyParser = require("body-parser");
@@ -13,6 +15,7 @@ const http = require("http");
 const marked = require("marked");
 //const nosniff = require('dont-sniff-mimetype');
 const app = express(); // Web framework to handle routing requests
+const Zen = require("@aikidosec/firewall");
 const routes = require("./app/routes");
 const { port, db, cookieSecret } = require("./config/config"); // Application config properties
 /*
@@ -100,6 +103,19 @@ MongoClient.connect(db, (err, db) => {
         */
 
     }));
+
+    // Set the current user for Aikido Zen
+    app.use((req, res, next) => {
+        if (req.session && req.session.userId) {
+            Zen.setUser({
+                id: req.session.userId,
+            });
+        }
+        next();
+    });
+
+    // Aikido Zen rate limiting and protection middleware
+    Zen.addExpressMiddleware(app);
 
     /*
     // Fix for A8 - CSRF

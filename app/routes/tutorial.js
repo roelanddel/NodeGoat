@@ -4,7 +4,7 @@ const {
 } = require("../../config/config");
 
 const router = express.Router();
-
+console.log(1111);
 router.get("/", (req, res) => {
     "use strict";
     return res.render("tutorial/a1", {
